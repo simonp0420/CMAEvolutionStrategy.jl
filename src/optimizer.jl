@@ -195,7 +195,10 @@ function update!(p::Parameters, y, perm)
 end
 sample(p) = unwhiten(p.cov.C, randn(p.rng, p.n, p.λ))
 function compute_input(p, y)
-    transform!(p.constraints, sigma(p) * y .+ p.mean)
+    sig = sigma(p)
+    x = transform!(p.constraints, sig * y .+ p.mean)
+    clamp!(x, 0.5 - sig/25, 0.5 + sig/25)
+    return x
 end
 function evaluate(p::Parameters, f, input)
     if p.parallel_evaluation
